@@ -14,6 +14,7 @@
 		0098AED6214F805A0005F682 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0098AED4214F805A0005F682 /* LaunchScreen.storyboard */; };
 		0098AED9214F805A0005F682 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0098AED8214F805A0005F682 /* main.m */; };
 		0098AEE1214F84070005F682 /* SinglePageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0098AEE0214F84070005F682 /* SinglePageView.m */; };
+		0098AEE7214F8AF20005F682 /* UIKitPagingDotsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0098AEE6214F8AF20005F682 /* UIKitPagingDotsView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		0098AED8214F805A0005F682 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		0098AEDF214F84070005F682 /* SinglePageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SinglePageView.h; sourceTree = "<group>"; };
 		0098AEE0214F84070005F682 /* SinglePageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SinglePageView.m; sourceTree = "<group>"; };
+		0098AEE5214F8AF20005F682 /* UIKitPagingDotsView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIKitPagingDotsView.h; sourceTree = "<group>"; };
+		0098AEE6214F8AF20005F682 /* UIKitPagingDotsView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIKitPagingDotsView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +64,7 @@
 		0098AEC8214F80580005F682 /* testPaging */ = {
 			isa = PBXGroup;
 			children = (
+				0098AEE4214F8AD80005F682 /* dotsView */,
 				0098AEC9214F80580005F682 /* AppDelegate.h */,
 				0098AECA214F80580005F682 /* AppDelegate.m */,
 				0098AECC214F80580005F682 /* ViewController.h */,
@@ -74,6 +78,15 @@
 				0098AEE0214F84070005F682 /* SinglePageView.m */,
 			);
 			path = testPaging;
+			sourceTree = "<group>";
+		};
+		0098AEE4214F8AD80005F682 /* dotsView */ = {
+			isa = PBXGroup;
+			children = (
+				0098AEE5214F8AF20005F682 /* UIKitPagingDotsView.h */,
+				0098AEE6214F8AF20005F682 /* UIKitPagingDotsView.m */,
+			);
+			path = dotsView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +161,7 @@
 			files = (
 				0098AECE214F80580005F682 /* ViewController.m in Sources */,
 				0098AEE1214F84070005F682 /* SinglePageView.m in Sources */,
+				0098AEE7214F8AF20005F682 /* UIKitPagingDotsView.m in Sources */,
 				0098AED9214F805A0005F682 /* main.m in Sources */,
 				0098AECB214F80580005F682 /* AppDelegate.m in Sources */,
 			);

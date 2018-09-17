@@ -9,10 +9,12 @@
 #import "ViewController.h"
 
 #import "SinglePageView.h"
+#import "UIKitPagingDotsView.h"
 
-@interface ViewController ()
+@interface ViewController () <UIScrollViewDelegate>
 
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (strong, nonatomic) IBOutlet UIKitPagingDotsView *dotsView;
 
 @property (strong, nonatomic) IBOutlet UIView *contentView;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *contentViewWidthConstraint;
@@ -25,6 +27,7 @@
     [super viewDidLoad];
     
     [self buildContent];
+    
 }
 
 
@@ -34,7 +37,7 @@
 }
 
 - (void)buildContent {
-    NSInteger count = 100;
+    NSInteger count = 10;
     UIView *scrollView = self.scrollView;
     UIView *rootView = self.contentView;
     UIView *prevView = nil;
@@ -79,6 +82,18 @@
         // after bind
         prevView = view;
     }
+    
+    self.dotsView.numberOfDots = count;
+    self.dotsView.numberOfVisibleDots = 5;
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat scrollWidth = scrollView.bounds.size.width;
+    CGFloat selectedDot = scrollView.contentOffset.x / scrollWidth;
+    
+    self.dotsView.selectedDot = selectedDot;
 }
 
 @end
