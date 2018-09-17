@@ -32,6 +32,7 @@
 
 - (void)setupLabel {
     UILabel *view = [[UILabel alloc] init];
+    view.translatesAutoresizingMaskIntoConstraints = NO;
     view.backgroundColor = UIColor.lightGrayColor;
     
     [self addSubview:view];

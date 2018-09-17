@@ -8,7 +8,14 @@
 
 #import "ViewController.h"
 
+#import "SinglePageView.h"
+
 @interface ViewController ()
+
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+
+@property (strong, nonatomic) IBOutlet UIView *contentView;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *contentViewWidthConstraint;
 
 @end
 
@@ -16,7 +23,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    [self buildContent];
 }
 
 
@@ -25,5 +33,52 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)buildContent {
+    NSInteger count = 100;
+    UIView *scrollView = self.scrollView;
+    UIView *rootView = self.contentView;
+    UIView *prevView = nil;
+    
+    for (int i = 0; i < count; i++) {
+        NSString *title = [NSString stringWithFormat:@"Page: %@", @(i)];
+        BOOL isLast = (i == count - 1) ? YES : NO;
+        
+        SinglePageView *view = [SinglePageView new];
+        view.translatesAutoresizingMaskIntoConstraints = NO;
+        view.titleLabel.text = title;
+        
+        [rootView addSubview:view];
+        
+        // constriants
+        // left
+        if (prevView == nil) {
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0];
+            [rootView addConstraint:constraint];
+        } else {
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:prevView attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0];
+            [rootView addConstraint:constraint];
+        }
+        // right
+        if (isLast) {
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:rootView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0];
+            [rootView addConstraint:constraint];
+        }
+        { // top
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0];
+            [rootView addConstraint:constraint];
+        }
+        { // width
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:scrollView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0];
+            [self.view addConstraint:constraint];
+        }
+        { // height
+            NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeHeight multiplier:0.8 constant:0.0];
+            [rootView addConstraint:constraint];
+        }
+        
+        // after bind
+        prevView = view;
+    }
+}
 
 @end
