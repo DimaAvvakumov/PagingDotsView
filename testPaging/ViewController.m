@@ -84,7 +84,8 @@
     }
     
     self.dotsView.numberOfDots = count;
-    self.dotsView.numberOfVisibleDots = 5;
+    self.dotsView.numberOfVisibleDots = 3;
+    self.dotsView.dotSpacing = 6.0;
 }
 
 #pragma mark - UIScrollViewDelegate

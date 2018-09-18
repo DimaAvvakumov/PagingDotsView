@@ -20,6 +20,7 @@
 
 @interface UIKitPagingDotsView()
 
+@property (assign, nonatomic) CGFloat boundsSpace;
 @property (assign, nonatomic) BOOL debugDraw;
 
 @end
@@ -43,6 +44,8 @@
 }
 
 - (void)setupView {
+    _boundsSpace = 4.0;
+    
     _numberOfDots = 10;
     _numberOfVisibleDots = 5;
     _selectedDot = 0.0;
@@ -51,6 +54,8 @@
     
     _dotColor = [UIColor lightGrayColor];
     _selectdDotColor = [UIColor blueColor];
+    
+    _style = UIKitPagingDotsViewStyle_Scale;
     
     _debugDraw = NO;
 }
@@ -65,6 +70,18 @@
 
 - (void)setNumberOfVisibleDots:(NSInteger)numberOfVisibleDots {
     _numberOfVisibleDots = numberOfVisibleDots;
+    
+    // Component build only for odd number of visible dots
+    if (numberOfVisibleDots % 2 == 0) {
+        NSLog(@"%@ Warning!", NSStringFromClass([self class]));
+        NSLog(@"🐹 Please, use odd number of visible");
+    }
+    
+    [self setNeedsDisplay];
+}
+
+- (void)setSelectedDot:(CGFloat)selectedDot {
+    _selectedDot = selectedDot;
     
     [self setNeedsDisplay];
 }
@@ -81,8 +98,20 @@
     [self setNeedsDisplay];
 }
 
-- (void)setSelectedDot:(CGFloat)selectedDot {
-    _selectedDot = selectedDot;
+- (void)setDotSize:(CGSize)dotSize {
+    _dotSize = dotSize;
+    
+    [self setNeedsDisplay];
+}
+
+- (void)setDotSpacing:(CGFloat)dotSpacing {
+    _dotSpacing = dotSpacing;
+    
+    [self setNeedsDisplay];
+}
+
+- (void)setStyle:(UIKitPagingDotsViewStyle)style {
+    _style = style;
     
     [self setNeedsDisplay];
 }
@@ -117,30 +146,6 @@
         centralIndexOffset = _numberOfDots - numberOfCentralDots;
     }
     
-//    CGFloat rangeTilda = 0.5;
-//    CGFloat minRange = _selectedDot + rangeTilda - (CGFloat) (numberOfCentralDots / 2.0);
-//    CGFloat maxRange = _selectedDot - rangeTilda + (CGFloat) (numberOfCentralDots / 2.0);
-//
-//    NSInteger minRangeInt = ceil(minRange);
-//    NSInteger maxRangeInt = ceil(maxRange);
-//
-//    if (minRangeInt < 0) {
-//        NSInteger rangeOffset = - minRangeInt;
-//
-//        minRangeInt += rangeOffset;
-//        minRange += rangeOffset;
-//
-//        maxRangeInt += rangeOffset;
-//        maxRange += rangeOffset;
-//    }
-//
-//    if (maxRangeInt > _numberOfDots - 1) {
-//        NSInteger rangeOffset = _numberOfDots - 1 - maxRangeInt;
-//
-//        maxRangeInt += rangeOffset;
-//        maxRange += rangeOffset;
-//    }
-    
     // measurment of central dots
     CGSize size = _dotSize;
     CGFloat dotWidth = _dotSize.width;
@@ -151,13 +156,13 @@
     
     // measurment of start-stop point of left transformation
     NSInteger countOfTransformableDots = 3;
-    CGFloat lftTransStartX = startX - countOfTransformableDots * (size.width + _dotSpacing);
+    CGFloat lftTransStartX = startX - countOfTransformableDots * (size.width + _dotSpacing) + _boundsSpace;
     CGFloat lftTransEndX = startX;
     CGFloat lftTransDelta = lftTransEndX - lftTransStartX;
     
     // right dots
     CGFloat rgtTransStartX = startX + widthAllDots + widthAllSpaces;
-    CGFloat rgtTransEndX = startX + widthAllDots + widthAllSpaces + countOfTransformableDots * (size.width + _dotSpacing);
+    CGFloat rgtTransEndX = startX + widthAllDots + widthAllSpaces + countOfTransformableDots * (size.width + _dotSpacing) - _boundsSpace;
     CGFloat rgtTransDelta = rgtTransEndX - rgtTransStartX;
     
     // for drawing animating between one selection state to another calculate a offset
@@ -166,9 +171,26 @@
         dotOffset = _selectedDot - round(_selectedDot);
     }
     
-    // draw cenral dots
-    for (int i = 0; i < numberOfCentralDots; i++) {
+    // dots out of bounds
+    NSInteger transformedDots = 3;
+    
+    // draw cenral dots and dots out of bounds
+    for (NSInteger i = -transformedDots; i < numberOfCentralDots + transformedDots; i++) {
         NSInteger realndex = centralIndexOffset + i;
+        
+        // check for bounds for real dots
+        if (realndex < 0) continue;
+        if (realndex >= _numberOfDots) continue;
+        
+        // calculate frame
+        CGFloat x = startX + i * (size.width + _dotSpacing) - dotOffset * (size.width + _dotSpacing);
+        CGRect frame = CGRectMake(x, y, size.width, size.height);
+        
+        // check for visible area
+        if (x < lftTransStartX) continue;
+        if (x > rgtTransEndX) continue;
+        
+        // check selections
         CGFloat selectionOffset = _selectedDot - realndex;
         CGFloat selectionPart = 0.0;
         if (selectionOffset > -1.0 && selectionOffset <= 0) {
@@ -185,92 +207,42 @@
             fillColor = _selectdDotColor;
         }
         
-        CGFloat x = startX + i * (size.width + _dotSpacing) - dotOffset * (size.width + _dotSpacing);
-        CGRect frame = CGRectMake(x, y, size.width, size.height);
-        
-        UIBezierPath* ovalPath = [UIBezierPath bezierPathWithOvalInRect: frame];
-        [fillColor setFill];
-        [ovalPath fill];
-    }
-    
-    // draw other dots
-    // Tips: other dots are always draw by normal color
-    
-    // left dots
-    NSInteger transformedDots = 3;
-    for (NSInteger i = transformedDots; i > 0; i--) {
-        NSInteger realndex = centralIndexOffset - i;
-        if (realndex < 0) continue;
-        
-        CGFloat x = startX - i * (size.width + _dotSpacing) - dotOffset * (size.width + _dotSpacing);
-        
-        // check for visible area
-        if (x < lftTransStartX) continue;
-        
         // alpha
-        CGFloat alpha = (x + dotWidth - lftTransStartX) / lftTransDelta;
+        CGFloat alpha = 1.0;
+        CGFloat alphaSign = 1.0;
+        if (x < lftTransEndX) {
+            alpha = (x + dotWidth - lftTransStartX) / lftTransDelta;
+        }
+        if (x > rgtTransStartX) {
+            alpha = 1.0 - (x - rgtTransStartX) / rgtTransDelta;
+            alphaSign = -1.0;
+        }
+        if (alpha > 1.0) alpha = 1.0;
+        if (alpha < 0.0) alpha = 0.0;
         
-        // frame
-        CGRect frame = CGRectMake(x, y, size.width, size.height);
+        // convert fill color
+        if (alpha != 1.0) {
+            // change fill color
+            if (_style == UIKitPagingDotsViewStyle_Alpha) {
+                fillColor = [_dotColor colorWithAlphaComponent:alpha];
+            }
+            
+            // correct frame
+            if (_style == UIKitPagingDotsViewStyle_Scale) {
+                // correct for X position
+                frame.origin.x = frame.origin.x + alphaSign * _dotSpacing * (1.0 - alpha);
+                // correct for scale
+                frame = [self frameWithFrame:frame withScale:alpha];
+            }
+        }
         
-        // color
-        UIColor *fillColor = [_dotColor colorWithAlphaComponent:alpha];
-        
+        // draw dot
         UIBezierPath* ovalPath = [UIBezierPath bezierPathWithOvalInRect: frame];
         [fillColor setFill];
         [ovalPath fill];
-        
-        // debug
-        if (_debugDraw) {
-            NSString *text = [NSString stringWithFormat:@"%0.1f", lftTransStartX];
-            CGPoint pos = CGPointMake(lftTransStartX, 0);
-            [self drawDebugTextWithText:text textPosition:pos];
-        }
-        if (_debugDraw) {
-            NSString *text = [NSString stringWithFormat:@"%0.1f", lftTransEndX];
-            CGPoint pos = CGPointMake(lftTransEndX, 0);
-            [self drawDebugTextWithText:text textPosition:pos];
-        }
     }
     
-    // right dots
-    for (NSInteger i = 0; i < transformedDots; i++) {
-        NSInteger fixedI = i + numberOfCentralDots;
-        NSInteger realndex = centralIndexOffset + fixedI;
-        if (realndex >= _numberOfDots) continue;
-        
-        CGFloat x = startX + fixedI * (size.width + _dotSpacing) - dotOffset * (size.width + _dotSpacing);
-        
-        // check for visible area
-        if (x > rgtTransEndX) continue;
-        
-        // alpha
-        CGFloat alpha = 1.0 - (x - rgtTransStartX) / rgtTransDelta;
-        
-        // frame
-        CGRect frame = CGRectMake(x, y, size.width, size.height);
-        
-        // color
-        UIColor *fillColor = [_dotColor colorWithAlphaComponent:alpha];
-        
-        UIBezierPath* ovalPath = [UIBezierPath bezierPathWithOvalInRect: frame];
-        [fillColor setFill];
-        [ovalPath fill];
-        
-        // debug
-        if (_debugDraw) {
-            NSString *text = [NSString stringWithFormat:@"%0.1f", rgtTransEndX];
-            CGPoint pos = CGPointMake(rgtTransEndX, 0);
-            [self drawDebugTextWithText:text textPosition:pos];
-        }
-        if (_debugDraw) {
-            NSString *text = [NSString stringWithFormat:@"%0.1f", rgtTransStartX];
-            CGPoint pos = CGPointMake(rgtTransStartX, 0);
-            [self drawDebugTextWithText:text textPosition:pos];
-        }
-    }
-    
-    if (_debugDraw) {
+    if ([self isDebug]) {
         CGFloat x = startX;
         CGRect frame = CGRectMake(x, y, widthAllDots + widthAllSpaces, size.height);
         
@@ -279,6 +251,13 @@
         [UIColor.redColor setStroke];
         [rectanglePath stroke];
     }
+}
+
+- (BOOL)isDebug {
+#ifdef DEBUG
+    return _debugDraw;
+#endif
+    return NO;
 }
 
 #pragma mark - Debug
@@ -375,6 +354,18 @@
     CGFloat newAlpha = (1.0 - fraction) * alpha + fraction * finalAlpha;
     
     return  [UIColor colorWithRed:newRed green:newGreen blue:newBlue alpha:newAlpha];
+}
+
+- (CGRect)frameWithFrame:(CGRect)inputFrame withScale:(CGFloat)scale {
+    if (scale < 0.0) return inputFrame;
+    if (scale > 1.0) return inputFrame;
+    
+    CGFloat w = scale * inputFrame.size.width;
+    CGFloat h = scale * inputFrame.size.height;
+    CGFloat x = inputFrame.origin.x + (inputFrame.size.width - w) / 2.0;
+    CGFloat y = inputFrame.origin.y + (inputFrame.size.height - h) / 2.0;
+    
+    return CGRectMake(x, y, w, h);
 }
 
 @end
