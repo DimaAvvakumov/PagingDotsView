@@ -37,7 +37,7 @@
 }
 
 - (void)buildContent {
-    NSInteger count = 10;
+    NSInteger count = 12;
     UIView *scrollView = self.scrollView;
     UIView *rootView = self.contentView;
     UIView *prevView = nil;
