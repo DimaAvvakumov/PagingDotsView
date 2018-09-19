@@ -44,13 +44,15 @@
 }
 
 - (void)setupView {
+    self.backgroundColor = UIColor.clearColor;
+    
     _boundsSpace = 4.0;
     
     _numberOfDots = 10;
-    _numberOfVisibleDots = 5;
+    _numberOfVisibleDots = 3;
     _selectedDot = 0.0;
     _dotSize = CGSizeMake(6.0, 6.0);
-    _dotSpacing = 10.0;
+    _dotSpacing = 6.0;
     
     _dotColor = [UIColor lightGrayColor];
     _selectdDotColor = [UIColor blueColor];
