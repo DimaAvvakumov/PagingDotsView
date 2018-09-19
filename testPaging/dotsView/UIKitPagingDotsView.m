@@ -127,13 +127,27 @@
 #pragma mark - Private
 
 /**
+ @brief Real number of visible dots differ of user defined.
+   Because if dots less than user defined visible - we must stop transform by edges
+ 
+ */
+- (NSInteger)realNumberOfVisibleDots {
+    NSInteger blockCount = _numberOfVisibleDots + 2;
+    if (_numberOfDots <= blockCount) {
+        return blockCount;
+    }
+    
+    return _numberOfVisibleDots;
+}
+
+/**
  @brief Redraw
  
  ..**OOO**..
  
  */
 - (void)drawRect:(CGRect)rect {
-    NSInteger numberOfCentralDots = MIN(_numberOfDots, _numberOfVisibleDots);
+    NSInteger numberOfCentralDots = MIN(_numberOfDots, [self realNumberOfVisibleDots]);
     CGFloat minOffsetBeforeMove = (CGFloat) (numberOfCentralDots - 1) / (CGFloat) 2.0;
     CGFloat maxOffsetAfterMove = _numberOfDots - 1 - minOffsetBeforeMove;
     NSInteger centralIndexOffset = (NSInteger) round(_selectedDot) - minOffsetBeforeMove;
